@@ -8,7 +8,7 @@ const {
 } = require("../models/contacts");
 const { WrongParametrsError } = require("../middlewares/helpers/errors");
 
-const getAll = async (req, res, next) => {
+const getAll = async (req, res) => {
   const contacts = await listContacts();
   res.status(200).json(contacts);
 };
@@ -21,7 +21,7 @@ const getOneById = async (req, res) => {
     : res.status(400).json({ message: `no contact with id ${contactId}` });
 };
 
-const postNew = async (req, res, next) => {
+const postNew = async (req, res) => {
   const newContact = await addContact(req.body);
   res.status(201).json(newContact);
 };
