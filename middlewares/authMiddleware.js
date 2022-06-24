@@ -1,28 +1,31 @@
 const jwt = require("jsonwebtoken");
-// const { NotAuthorizedError } = require("../helpers/errors");
+const { User } = require("../models/userShema");
+const { UnauthorizedError } = require("../middlewares/helpers/errors");
+const { SECRET_KEY } = process.env;
 
-const authMiddleware = (req, res, next) => {
+const authMiddleware = async (req, res, next) => {
   try {
-    // ?token
-    // TODO: validate typeToken later!!!
-    const [token] = req.headers.authorization.split(" ");
-    // console.log(typeToken, token);
-    if (!token) {
-      next(new NotAuthorizedError("please provide  a token"));
-    }
-    // decode
+    const [typeToken, token] = req.headers.authorization.split(" ");
 
-    const user = jwt.decode(token, process.env.JWT_SECRET);
-    // req.user
-    req.token = token;
+    if (!token) {
+      throw new UnauthorizedError("Not authorized");
+    }
+
+    const { _id } = jwt.decode(token, SECRET_KEY);
+    const user = await User.findById(_id);
+
+    if (!user || user.token !== token) {
+      throw new UnauthorizedError("Not authorized");
+    }
+
     req.user = user;
   } catch (error) {
-    next(new NotAuthorizedError("invalid token"));
+    next(new UnauthorizedError("invalid token"));
   }
 
   next();
 };
 
-// module.exports = {
-//   authMiddleware,
-// };
+module.exports = {
+  authMiddleware,
+};

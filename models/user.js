@@ -1,6 +1,5 @@
 const jwt = require("jsonwebtoken");
 const { User } = require("./userShema");
-
 const { SECRET_KEY } = process.env;
 
 const {
