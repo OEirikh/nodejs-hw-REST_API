@@ -6,14 +6,15 @@ const {
 const signupController = async (req, res) => {
   const { email, password } = req.body;
 
-  await signup(email, password);
+  const newUser = await signup(email, password);
 
   res.status(201).json({
     status: "success",
     code: 201,
     data: {
       user: {
-        email,
+        email: newUser.email,
+        subscription: newUser.subscription,
       },
     },
   });
