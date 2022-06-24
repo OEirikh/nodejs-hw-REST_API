@@ -17,6 +17,9 @@ const {
   updateFaforiteValidation,
 } = require("../../middlewares/validation");
 
+// const { authMiddleware } = require("../../middlewares/authMiddleware");
+
+// router.use(authMiddleware);
 router
   .get("/", asyncWrapper(getAll))
   .get("/:contactId", asyncWrapper(getOneById))
@@ -29,4 +32,4 @@ router
     asyncWrapper(patchFavotite)
   );
 
-module.exports = router;
+module.exports = { contactsRouter: router };

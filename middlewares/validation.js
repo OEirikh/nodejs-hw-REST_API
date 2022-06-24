@@ -68,4 +68,46 @@ module.exports = {
     }
     next();
   },
+
+  signUpValidation: (req, res, next) => {
+    const schema = Joi.object({
+      password: Joi.string().min(6).required(),
+      email: Joi.string().email().required(),
+      subscription: Joi.string().valid("starter", "pro", "business"),
+    });
+    const { error } = schema.validate(req.body);
+
+    if (error) {
+      const [errorMessage] = error.details;
+      throw new ValidationError(`${errorMessage.message}`);
+    }
+    next();
+  },
+
+  loginValidation: (req, res, next) => {
+    const schema = Joi.object({
+      password: Joi.string().min(6).required(),
+      email: Joi.string().required(),
+    });
+    const { error } = schema.validate(req.body);
+
+    if (error) {
+      const [errorMessage] = error.details;
+      throw new ValidationError(`${errorMessage.message}`);
+    }
+    next();
+  },
+
+  subscriptionValidation: (req, res, next) => {
+    const schema = Joi.object({
+      subscription: Joi.string().valid("starter", "pro", "business").required(),
+    });
+    const { error } = schema.validate(req.body);
+
+    if (error) {
+      const [errorMessage] = error.details;
+      throw new ValidationError(`${errorMessage.message}`);
+    }
+    next();
+  },
 };
