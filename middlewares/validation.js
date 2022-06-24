@@ -71,8 +71,8 @@ module.exports = {
 
   signUpValidation: (req, res, next) => {
     const schema = Joi.object({
-      password: Joi.string().min(6).required(),
       email: Joi.string().email().required(),
+      password: Joi.string().min(6).required(),
       subscription: Joi.string().valid("starter", "pro", "business"),
     });
     const { error } = schema.validate(req.body);
@@ -86,8 +86,8 @@ module.exports = {
 
   loginValidation: (req, res, next) => {
     const schema = Joi.object({
+      email: Joi.string().email().required(),
       password: Joi.string().min(6).required(),
-      email: Joi.string().required(),
     });
     const { error } = schema.validate(req.body);
 

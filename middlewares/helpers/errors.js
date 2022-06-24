@@ -26,9 +26,17 @@ class RegistrationConflictError extends ContactsAPIError {
   }
 }
 
+class UnauthorizedError extends ContactsAPIError {
+  constructor(message) {
+    super(message);
+    this.status = 401;
+  }
+}
+
 module.exports = {
   ContactsAPIError,
   ValidationError,
   WrongParametrsError,
   RegistrationConflictError,
+  UnauthorizedError,
 };
