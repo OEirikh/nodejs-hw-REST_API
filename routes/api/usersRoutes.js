@@ -12,12 +12,13 @@ const {
   signupController,
   loginController,
   logoutController,
+  currentController,
 } = require("../../controllers/usersControllers");
 
 router
   .post("/signup", signUpValidation, asyncWrapper(signupController))
   .post("/login", loginValidation, asyncWrapper(loginController))
   .get("/logout", authMiddleware, asyncWrapper(logoutController))
-  .get("/current", authMiddleware, asyncWrapper(logoutController));
+  .get("/current", authMiddleware, asyncWrapper(currentController));
 
 module.exports = { usersRouter: router };
