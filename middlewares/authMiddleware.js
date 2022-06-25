@@ -5,13 +5,13 @@ const { SECRET_KEY } = process.env;
 
 const authMiddleware = async (req, res, next) => {
   try {
-    const [typeToken, token] = req.headers.authorization.split(" ");
+    const [_, token] = req.headers.authorization.split(" ");
 
     if (!token) {
-      throw new UnauthorizedError("Not authorized");
+      throw new UnauthorizedError("please provide  a token");
     }
-
     const { _id } = jwt.decode(token, SECRET_KEY);
+
     const user = await User.findById(_id);
 
     if (!user || user.token !== token) {
@@ -20,7 +20,7 @@ const authMiddleware = async (req, res, next) => {
 
     req.user = user;
   } catch (error) {
-    next(new UnauthorizedError("invalid token"));
+    next(new UnauthorizedError(error.message));
   }
 
   next();

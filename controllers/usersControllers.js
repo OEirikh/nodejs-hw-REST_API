@@ -1,4 +1,4 @@
-const { signup, login } = require("../models/user");
+const { signup, login, logout } = require("../models/user");
 
 const signupController = async (req, res) => {
   const { email, password } = req.body;
@@ -32,7 +32,21 @@ const loginController = async (req, res) => {
   });
 };
 
+const logoutController = async (req, res) => {
+  const { _id } = req.user;
+  await logout(_id);
+  res.status(204).json();
+};
+
+const currentController = async (req, res) => {
+  const { _id } = req.user;
+  await logout(_id);
+  res.status(204).json();
+};
+
 module.exports = {
   signupController,
   loginController,
+  logoutController,
+  currentController,
 };
