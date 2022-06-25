@@ -1,38 +1,38 @@
-const { Contacts } = require("./contactShema");
+const { Contact } = require("./contactShema");
 
-const listContacts = async () => {
-  const data = await Contacts.find();
+const listContacts = async (_id) => {
+  const data = await Contact.find({ owner: _id });
   return data;
 };
 
-const getContactById = async (contactId) => {
-  const data = await Contacts.findById(contactId);
+const getContactById = async (contactId, _id) => {
+  const data = await Contact.findById({ _id: contactId, owner: _id });
   return data;
 };
 
-const addContact = async (body) => {
-  const newContact = new Contacts(body);
+const addContact = async (body, _id) => {
+  const newContact = new Contact({ ...body, owner: _id });
   const data = await newContact.save();
   return data;
 };
 
-const removeContact = async (contactId) => {
-  const data = await Contacts.findByIdAndRemove(contactId);
+const removeContact = async (contactId, _id) => {
+  const data = await Contact.findByIdAndRemove({ _id: contactId, owner: _id });
   return data;
 };
 
-const updateContact = async (contactId, body) => {
-  const data = await Contacts.findByIdAndUpdate(
-    contactId,
+const updateContact = async (contactId, _id, body) => {
+  const data = await Contact.findByIdAndUpdate(
+    { _id: contactId, owner: _id },
     { $set: body },
     { new: true }
   );
   return data;
 };
 
-const togleFavorite = async (contactId, body) => {
-  const data = await Contacts.findByIdAndUpdate(
-    contactId,
+const togleFavorite = async (contactId, _id, body) => {
+  const data = await Contact.findByIdAndUpdate(
+    { _id: contactId, owner: _id },
     { $set: body },
     { new: true }
   );
