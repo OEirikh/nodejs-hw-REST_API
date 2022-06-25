@@ -39,9 +39,17 @@ const logoutController = async (req, res) => {
 };
 
 const currentController = async (req, res) => {
-  const { _id } = req.user;
-  await logout(_id);
-  res.status(204).json();
+  const { email, subscription } = req.user;
+  res.json({
+    status: "success",
+    code: 200,
+    data: {
+      user: {
+        email,
+        subscription,
+      },
+    },
+  });
 };
 
 module.exports = {

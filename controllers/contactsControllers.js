@@ -5,7 +5,7 @@ const {
   addContact,
   updateContact,
   togleFavorite,
-} = require("../models/contacts");
+} = require("../models/contact");
 const { WrongParametrsError } = require("../middlewares/helpers/errors");
 
 const getAll = async (req, res) => {

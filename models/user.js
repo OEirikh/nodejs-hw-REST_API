@@ -23,7 +23,9 @@ const login = async (email, password) => {
     throw new UnauthorizedError(`Email ${email} or password is wrong`);
   }
 
-  const token = await jwt.sign({ _id: existingUser._id }, SECRET_KEY);
+  const token = await jwt.sign({ _id: existingUser._id }, SECRET_KEY, {
+    expiresIn: "1h",
+  });
 
   await User.findByIdAndUpdate(existingUser._id, {
     token,
