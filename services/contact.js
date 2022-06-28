@@ -1,4 +1,4 @@
-const { Contact } = require("./contactShema");
+const { Contact } = require("../models/contactShema");
 
 const listContacts = async (_id) => {
   const data = await Contact.find({ owner: _id });
