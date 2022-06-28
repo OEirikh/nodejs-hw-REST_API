@@ -1,4 +1,4 @@
-const { signup, login, logout } = require("../servises/user");
+const { signup, login, logout } = require("../services/user");
 
 const signupController = async (req, res) => {
   const { email, password } = req.body;
