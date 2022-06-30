@@ -20,6 +20,7 @@ const {
 
 router
   .post("/signup", signUpValidation, asyncWrapper(signupController))
+  .get("/verify/:verificationToken", asyncWrapper())
   .post("/login", loginValidation, asyncWrapper(loginController))
   .get("/logout", authMiddleware, asyncWrapper(logoutController))
   .get("/current", authMiddleware, asyncWrapper(currentController))

@@ -1,4 +1,10 @@
-const { signup, login, logout, updateAvatar } = require("../services/user");
+const {
+  signup,
+  login,
+  logout,
+  updateAvatar,
+  verifyEmail,
+} = require("../services/user");
 
 const signupController = async (req, res) => {
   const { email, password } = req.body;
@@ -66,10 +72,24 @@ const avatarController = async (req, res) => {
   });
 };
 
+const verifyEmailController = async (req, res) => {
+  const { verifyToken } = req.params;
+  await verifyEmail(verifyToken);
+
+  res.json({
+    status: "success",
+    code: 200,
+    data: {
+      message: "Verification successful",
+    },
+  });
+};
+
 module.exports = {
   signupController,
   loginController,
   logoutController,
   currentController,
   avatarController,
+  verifyEmailController,
 };

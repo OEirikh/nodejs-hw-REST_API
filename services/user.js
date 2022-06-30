@@ -9,6 +9,7 @@ const { SECRET_KEY } = process.env;
 const {
   RegistrationConflictError,
   UnauthorizedError,
+  NotFoundError,
 } = require("../middlewares/helpers/errors");
 
 const signup = async (email, password) => {
@@ -79,9 +80,22 @@ const updateAvatar = async ({ path: tempUpload, originalname }, _id) => {
   }
 };
 
+const verifyEmail = async (verifyToken) => {
+  const existingUser = await User.findOne({ verifyToken });
+  if (!existingUser) {
+    throw new NotFoundError("User not found");
+  }
+
+  await User.findOneAndUpdate(existingUser._id, {
+    verify: true,
+    verificationToken: null,
+  });
+};
+
 module.exports = {
   signup,
   login,
   logout,
   updateAvatar,
+  verifyEmail,
 };
