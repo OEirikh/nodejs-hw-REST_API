@@ -1,9 +1,12 @@
 const jwt = require("jsonwebtoken");
 const gravatar = require("gravatar");
+const { v4: uuidv4 } = require("uuid");
 const { User } = require("../models/userShema");
 const path = require("path");
 const fs = require("fs/promises");
 const jimp = require("jimp");
+const sgMail = require("@sendgrid/mail");
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 const { SECRET_KEY } = process.env;
 
 const {
@@ -17,8 +20,28 @@ const signup = async (email, password) => {
     throw new RegistrationConflictError(`Email ${email} in use`);
   }
   const avatarURL = gravatar.url(email);
-  const newUser = new User({ email, avatarURL });
-  newUser.setPassword(password);
+  const verificationToken = uuidv4();
+  const newUser = new User({ email, avatarURL, verificationToken });
+  User.setPassword(password);
+
+  const msg = {
+    to: email,
+    from: "o.eyrikh@gmail.com",
+    subject: "Please Verify Your Email",
+    text: "Let's verify your email so you can start working in app.",
+    html: `<a target="_blank" href="http://localhost:3000/api/users/verify/${verificationToken}">Verify Your Email</a>`,
+  };
+
+  try {
+    await sgMail.send(msg);
+  } catch (error) {
+    console.error(error);
+
+    if (error.response) {
+      console.error(error.response.body);
+    }
+  }
+
   return newUser.save();
 };
 
@@ -27,6 +50,10 @@ const login = async (email, password) => {
 
   if (!existingUser || !existingUser.comparePassword(password)) {
     throw new UnauthorizedError(`Email ${email} or password is wrong`);
+  }
+
+  if (!existingUser.verify) {
+    throw new UnauthorizedError(`Email ${email} is not verified`);
   }
 
   const token = await jwt.sign({ _id: existingUser._id }, SECRET_KEY, {
