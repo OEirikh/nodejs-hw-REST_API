@@ -6,9 +6,9 @@ const path = require("path");
 const fs = require("fs/promises");
 const jimp = require("jimp");
 const { SECRET_KEY } = process.env;
-const sgMail = require("@sendgrid/mail");
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-
+// const sgMail = require("@sendgrid/mail");
+// sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+const { sendingEmail } = require("../middlewares/helpers/sendingEmail");
 const {
   RegistrationConflictError,
   WrongParametrsError,
@@ -24,25 +24,7 @@ const signup = async (email, password) => {
   const verificationToken = uuidv4();
   const newUser = new User({ email, avatarURL, verificationToken });
   newUser.setPassword(password);
-
-  const msg = {
-    to: email,
-    from: "o.eyrikh@gmail.com",
-    subject: "Please Verify Your Email",
-    text: "Let's verify your email so you can start working in app.",
-    html: `<a target="_blank" href="http://localhost:3000/api/users/verify/${verificationToken}">Verify Your Email</a>`,
-  };
-
-  try {
-    await sgMail.send(msg);
-  } catch (error) {
-    console.error(error);
-
-    if (error.response) {
-      console.error(error.response.body);
-    }
-  }
-
+  sendingEmail(email, verificationToken);
   return newUser.save();
 };
 
@@ -131,23 +113,8 @@ const resendingAEmailValidation = async (email) => {
     throw new WrongParametrsError("Verification has already been passed");
   }
 
-  const msg = {
-    to: email,
-    from: "o.eyrikh@gmail.com",
-    subject: "Please Verify Your Email",
-    text: "Let's verify your email so you can start working in app.",
-    html: `<a target="_blank" href="http://localhost:3000/api/users/verify/${existingUser.verificationToken}">Verify Your Email</a>`,
-  };
-
-  try {
-    await sgMail.send(msg);
-  } catch (error) {
-    console.error(error);
-
-    if (error.response) {
-      console.error(error.response.body);
-    }
-  }
+  const verificationToken = existingUser.verificationToken;
+  sendingEmail(email, verificationToken);
 
   await User.findOneAndUpdate(existingUser._id, {
     verify: true,
