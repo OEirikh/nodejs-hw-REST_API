@@ -40,6 +40,13 @@ class NotFoundError extends ContactsAPIError {
   }
 }
 
+class SendingEmailError extends ContactsAPIError {
+  constructor(message, status) {
+    super(message);
+    this.status = status;
+  }
+}
+
 module.exports = {
   ContactsAPIError,
   ValidationError,
@@ -47,4 +54,5 @@ module.exports = {
   RegistrationConflictError,
   UnauthorizedError,
   NotFoundError,
+  SendingEmailError,
 };

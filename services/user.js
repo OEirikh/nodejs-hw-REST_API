@@ -6,8 +6,6 @@ const path = require("path");
 const fs = require("fs/promises");
 const jimp = require("jimp");
 const { SECRET_KEY } = process.env;
-// const sgMail = require("@sendgrid/mail");
-// sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 const { sendingEmail } = require("../middlewares/helpers/sendingEmail");
 const {
   RegistrationConflictError,
@@ -24,7 +22,7 @@ const signup = async (email, password) => {
   const verificationToken = uuidv4();
   const newUser = new User({ email, avatarURL, verificationToken });
   newUser.setPassword(password);
-  sendingEmail(email, verificationToken);
+  await sendingEmail(email, verificationToken);
   return newUser.save();
 };
 
@@ -114,12 +112,8 @@ const resendingAEmailValidation = async (email) => {
   }
 
   const verificationToken = existingUser.verificationToken;
-  sendingEmail(email, verificationToken);
 
-  await User.findOneAndUpdate(existingUser._id, {
-    verify: true,
-    verificationToken: null,
-  });
+  await sendingEmail(email, verificationToken);
 };
 
 module.exports = {
