@@ -4,6 +4,7 @@ const {
   logout,
   updateAvatar,
   verifyEmail,
+  resendingAEmailValidation,
 } = require("../services/user");
 
 const signupController = async (req, res) => {
@@ -85,6 +86,19 @@ const verifyEmailController = async (req, res) => {
   });
 };
 
+const resendingAEmailValidationlController = async (req, res) => {
+  const { email } = req.body;
+  await resendingAEmailValidation(email);
+
+  res.json({
+    status: "success",
+    code: 200,
+    data: {
+      message: "Verification email sent",
+    },
+  });
+};
+
 module.exports = {
   signupController,
   loginController,
@@ -92,4 +106,5 @@ module.exports = {
   currentController,
   avatarController,
   verifyEmailController,
+  resendingAEmailValidationlController,
 };

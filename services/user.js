@@ -5,12 +5,13 @@ const { User } = require("../models/userShema");
 const path = require("path");
 const fs = require("fs/promises");
 const jimp = require("jimp");
+const { SECRET_KEY } = process.env;
 const sgMail = require("@sendgrid/mail");
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-const { SECRET_KEY } = process.env;
 
 const {
   RegistrationConflictError,
+  WrongParametrsError,
   UnauthorizedError,
   NotFoundError,
 } = require("../middlewares/helpers/errors");
@@ -22,7 +23,7 @@ const signup = async (email, password) => {
   const avatarURL = gravatar.url(email);
   const verificationToken = uuidv4();
   const newUser = new User({ email, avatarURL, verificationToken });
-  User.setPassword(password);
+  newUser.setPassword(password);
 
   const msg = {
     to: email,
@@ -119,10 +120,46 @@ const verifyEmail = async (verifyToken) => {
   });
 };
 
+const resendingAEmailValidation = async (email) => {
+  const existingUser = await User.findOne({ email });
+
+  if (!existingUser) {
+    throw new UnauthorizedError(`Email ${email} is wrong`);
+  }
+
+  if (existingUser.verify) {
+    throw new WrongParametrsError("Verification has already been passed");
+  }
+
+  const msg = {
+    to: email,
+    from: "o.eyrikh@gmail.com",
+    subject: "Please Verify Your Email",
+    text: "Let's verify your email so you can start working in app.",
+    html: `<a target="_blank" href="http://localhost:3000/api/users/verify/${existingUser.verificationToken}">Verify Your Email</a>`,
+  };
+
+  try {
+    await sgMail.send(msg);
+  } catch (error) {
+    console.error(error);
+
+    if (error.response) {
+      console.error(error.response.body);
+    }
+  }
+
+  await User.findOneAndUpdate(existingUser._id, {
+    verify: true,
+    verificationToken: null,
+  });
+};
+
 module.exports = {
   signup,
   login,
   logout,
   updateAvatar,
   verifyEmail,
+  resendingAEmailValidation,
 };
