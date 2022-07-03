@@ -7,7 +7,7 @@ const { asyncWrapper } = require("../../middlewares/helpers/apiHelpers");
 const {
   signUpValidation,
   loginValidation,
-  // subscriptionValidation,
+  verifyEmailValidation,
 } = require("../../middlewares/validation");
 
 const {
@@ -16,10 +16,18 @@ const {
   logoutController,
   currentController,
   avatarController,
+  verifyEmailController,
+  resendingAEmailValidationlController,
 } = require("../../controllers/usersControllers");
 
 router
   .post("/signup", signUpValidation, asyncWrapper(signupController))
+  .get("/verify/:verificationToken", asyncWrapper(verifyEmailController))
+  .post(
+    "/verify",
+    verifyEmailValidation,
+    asyncWrapper(resendingAEmailValidationlController)
+  )
   .post("/login", loginValidation, asyncWrapper(loginController))
   .get("/logout", authMiddleware, asyncWrapper(logoutController))
   .get("/current", authMiddleware, asyncWrapper(currentController))

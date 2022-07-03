@@ -1,4 +1,5 @@
 const app = require("./app");
+
 const { connectMongo } = require("./db/connection");
 const PORT = process.env.PORT;
 

@@ -1,14 +1,17 @@
 const jwt = require("jsonwebtoken");
 const gravatar = require("gravatar");
+const { v4: uuidv4 } = require("uuid");
 const { User } = require("../models/userShema");
 const path = require("path");
 const fs = require("fs/promises");
 const jimp = require("jimp");
 const { SECRET_KEY } = process.env;
-
+const { sendingEmail } = require("../middlewares/helpers/sendingEmail");
 const {
   RegistrationConflictError,
+  WrongParametrsError,
   UnauthorizedError,
+  NotFoundError,
 } = require("../middlewares/helpers/errors");
 
 const signup = async (email, password) => {
@@ -16,8 +19,10 @@ const signup = async (email, password) => {
     throw new RegistrationConflictError(`Email ${email} in use`);
   }
   const avatarURL = gravatar.url(email);
-  const newUser = new User({ email, avatarURL });
+  const verificationToken = uuidv4();
+  const newUser = new User({ email, avatarURL, verificationToken });
   newUser.setPassword(password);
+  await sendingEmail(email, verificationToken);
   return newUser.save();
 };
 
@@ -26,6 +31,10 @@ const login = async (email, password) => {
 
   if (!existingUser || !existingUser.comparePassword(password)) {
     throw new UnauthorizedError(`Email ${email} or password is wrong`);
+  }
+
+  if (!existingUser.verify) {
+    throw new UnauthorizedError(`Email ${email} is not verified`);
   }
 
   const token = await jwt.sign({ _id: existingUser._id }, SECRET_KEY, {
@@ -79,9 +88,39 @@ const updateAvatar = async ({ path: tempUpload, originalname }, _id) => {
   }
 };
 
+const verifyEmail = async (verifyToken) => {
+  const existingUser = await User.findOne({ verifyToken });
+  if (!existingUser) {
+    throw new NotFoundError("User not found");
+  }
+
+  await User.findOneAndUpdate(existingUser._id, {
+    verify: true,
+    verificationToken: null,
+  });
+};
+
+const resendingAEmailValidation = async (email) => {
+  const existingUser = await User.findOne({ email });
+
+  if (!existingUser) {
+    throw new UnauthorizedError(`Email ${email} is wrong`);
+  }
+
+  if (existingUser.verify) {
+    throw new WrongParametrsError("Verification has already been passed");
+  }
+
+  const verificationToken = existingUser.verificationToken;
+
+  await sendingEmail(email, verificationToken);
+};
+
 module.exports = {
   signup,
   login,
   logout,
   updateAvatar,
+  verifyEmail,
+  resendingAEmailValidation,
 };
